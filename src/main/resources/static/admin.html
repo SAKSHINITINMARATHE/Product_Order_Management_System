@@ -1,0 +1,118 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Admin Dashboard</title>
+    <link rel="stylesheet" href="css/style.css">
+</head>
+
+<body>
+    <nav>
+        <span class="nav-brand">Admin Dashboard</span>
+        <div>
+            <a href="index.html">Shop</a>
+            <a href="javascript:void(0)" onclick="logout()" id="logout-link">Logout</a>
+        </div>
+    </nav>
+
+    <div class="container">
+        <div id="alert-box" class="alert"></div>
+
+        <div class="card">
+            <h3>Pending User Approvals</h3>
+            <table>
+                <thead>
+                    <tr>
+                        <th>ID</th>
+                        <th>Username</th>
+                        <th>Role</th>
+                        <th>Action</th>
+                    </tr>
+                </thead>
+                <tbody id="pending-users-table"></tbody>
+            </table>
+        </div>
+
+        <div class="card">
+            <h3>Manage Products</h3>
+            <div class="form-group">
+                <input type="hidden" id="product-id">
+                <div class="grid" style="grid-template-columns: 1fr 1fr; gap: 10px;">
+                    <input type="text" id="product-name" placeholder="Name">
+                    <input type="text" id="product-tagline" placeholder="Tagline">
+                    <input type="number" id="product-price" placeholder="Price (₹)">
+                    <input type="number" id="product-qty" placeholder="Quantity">
+                </div>
+                <textarea id="product-desc" placeholder="Description"
+                    style="margin-top: 10px; height: 60px;"></textarea>
+                <select id="product-status" style="margin-top: 10px;">
+                    <option value="true">Active</option>
+                    <option value="false">Inactive</option>
+                </select>
+                <button onclick="saveProduct()" class="btn" style="margin-top: 10px; width: 100%;">Save Product</button>
+                <button onclick="resetForm()" class="btn"
+                    style="margin-top: 5px; width: 100%; background: #666;">Reset</button>
+            </div>
+
+            <table>
+                <thead>
+                    <tr>
+                        <th>ID</th>
+                        <th>Name</th>
+                        <th>Price</th>
+                        <th>Qty</th>
+                        <th>Status</th>
+                        <th>Actions</th>
+                    </tr>
+                </thead>
+                <tbody id="admin-products-table"></tbody>
+            </table>
+        </div>
+    </div>
+
+    <script src="js/app.js"></script>
+    <script>
+        checkAuth();
+        const user = getUser();
+        if (!user || user.role !== 'ADMIN') window.location.href = 'index.html';
+
+        loadProducts(true);
+        loadPendingUsers();
+
+        async function loadPendingUsers() {
+            const users = await apiCall('/admin/users/pending');
+            const tbody = document.getElementById('pending-users-table');
+            if (users && users.length > 0) {
+                tbody.innerHTML = users.map(u => `
+                    <tr>
+                        <td>${u.id}</td>
+                        <td>${u.username}</td>
+                        <td>${u.role}</td>
+                        <td>
+                            <button onclick="approveUser(${u.id})" class="btn" style="background:green">Approve</button>
+                            <button onclick="rejectUser(${u.id})" class="btn btn-danger">Reject</button>
+                        </td>
+                    </tr>
+                `).join('');
+            } else {
+                tbody.innerHTML = '<tr><td colspan="4">No pending approvals</td></tr>';
+            }
+        }
+
+        async function approveUser(id) {
+            await apiCall(`/admin/users/${id}/approve`, 'POST');
+            loadPendingUsers();
+        }
+
+        async function rejectUser(id) {
+            if (confirm('Reject this user?')) {
+                await apiCall(`/admin/users/${id}`, 'DELETE');
+                loadPendingUsers();
+            }
+        }
+    </script>
+</body>
+
+</html>

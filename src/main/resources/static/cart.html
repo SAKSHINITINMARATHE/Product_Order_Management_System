@@ -1,0 +1,278 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Your Cart - Product Management System</title>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <style>
+        /* Reset */
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: 'Inter', sans-serif;
+        }
+
+        body {
+            background-color: #f4f6f8;
+            color: #333;
+        }
+
+        /* Navigation */
+        nav {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 1rem 2rem;
+            background-color: #1f2937;
+            color: #fff;
+        }
+
+        nav .nav-brand {
+            font-size: 1.8rem;
+            font-weight: 700;
+            color: #fff;
+            text-decoration: none;
+        }
+
+        nav .nav-links a {
+            margin-left: 1.5rem;
+            color: #fff;
+            text-decoration: none;
+            font-weight: 500;
+            transition: color 0.2s ease-in-out;
+        }
+
+        nav .nav-links a:hover {
+            color: #60a5fa;
+        }
+
+        .cart-count {
+            background-color: #ef4444;
+            color: #fff;
+            padding: 0 6px;
+            border-radius: 50%;
+            font-size: 0.8rem;
+            margin-left: 4px;
+        }
+
+        /* Container */
+        .container {
+            max-width: 1200px;
+            margin: 2rem auto;
+            padding: 0 1rem;
+        }
+
+        h1 {
+            margin-bottom: 2rem;
+            color: #1f2937;
+        }
+
+        /* Alert */
+        .alert {
+            padding: 1rem 1.5rem;
+            background-color: #fde68a;
+            color: #92400e;
+            border-radius: 8px;
+            display: none;
+            margin-bottom: 2rem;
+            text-align: center;
+        }
+
+        /* Cart Items */
+        #cart-items {
+            display: grid;
+            gap: 1.5rem;
+            margin-bottom: 2rem;
+        }
+
+        .cart-item {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            background-color: #fff;
+            border-radius: 12px;
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.05);
+            padding: 1rem;
+        }
+
+        .cart-item img {
+            width: 80px;
+            height: 80px;
+            object-fit: cover;
+            border-radius: 8px;
+            margin-right: 1rem;
+        }
+
+        .cart-item-details {
+            flex: 1;
+        }
+
+        .cart-item-details h3 {
+            font-size: 1.1rem;
+            margin-bottom: 0.3rem;
+            color: #1f2937;
+        }
+
+        .cart-item-details p {
+            font-size: 0.95rem;
+            color: #6b7280;
+        }
+
+        .cart-item-actions {
+            display: flex;
+            flex-direction: column;
+            align-items: flex-end;
+        }
+
+        .cart-item-actions span {
+            font-weight: 600;
+            margin-bottom: 0.5rem;
+            color: #111827;
+        }
+
+        .cart-item-actions button {
+            padding: 0.5rem 0.8rem;
+            background-color: #ef4444;
+            color: #fff;
+            border: none;
+            border-radius: 8px;
+            cursor: pointer;
+            transition: background-color 0.2s ease-in-out;
+            font-size: 0.85rem;
+        }
+
+        .cart-item-actions button:hover {
+            background-color: #dc2626;
+        }
+
+        /* Cart Summary */
+        .cart-summary h3 {
+            font-size: 1.3rem;
+            margin-bottom: 1rem;
+        }
+
+        .btn {
+            padding: 0.6rem 1.2rem;
+            background-color: #3b82f6;
+            color: #fff;
+            border: none;
+            border-radius: 8px;
+            cursor: pointer;
+            font-weight: 500;
+            transition: background-color 0.2s ease-in-out;
+        }
+
+        .btn:hover {
+            background-color: #2563eb;
+        }
+
+        .btn-danger {
+            background-color: #ef4444;
+        }
+
+        .btn-danger:hover {
+            background-color: #dc2626;
+        }
+
+        /* Order History Table */
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-top: 1rem;
+            background-color: #fff;
+            border-radius: 12px;
+            overflow: hidden;
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.05);
+        }
+
+        table th,
+        table td {
+            padding: 1rem;
+            text-align: left;
+        }
+
+        table th {
+            background-color: #3b82f6;
+            color: #fff;
+            font-weight: 600;
+        }
+
+        table tr:nth-child(even) {
+            background-color: #f4f6f8;
+        }
+    </style>
+</head>
+
+<body>
+    <nav>
+        <a href="index.html" class="nav-brand">Shop</a>
+        <div class="nav-links">
+            <a href="index.html">Products</a>
+            <a href="cart.html" class="cart-icon">Cart <span id="cart-count" class="cart-count">0</span></a>
+            <a href="admin.html" id="admin-link">Admin</a>
+            <a href="login.html" id="login-link">Login</a>
+            <a href="javascript:void(0)" id="logout-link" style="display:none" onclick="logout()">Logout</a>
+        </div>
+    </nav>
+
+    <div class="container">
+        <h1>Your Shopping Cart</h1>
+        <div id="alert-box" class="alert"></div>
+
+        <div id="cart-items">
+            <p>Your cart is empty.</p>
+        </div>
+
+        <div class="cart-summary" style="text-align: right;">
+            <h3>Total: ₹<span id="cart-total">0.00</span></h3>
+            <button onclick="placeOrder()" class="btn" style="margin-top: 1rem;">Place Order</button>
+            <button onclick="clearCart()" class="btn btn-danger" style="margin-top: 1rem; margin-left: 1rem;">Clear Cart</button>
+        </div>
+
+        <div id="order-history" style="margin-top: 3rem;">
+            <h2>Order History</h2>
+            <table>
+                <thead>
+                    <tr>
+                        <th>Order ID</th>
+                        <th>Date</th>
+                        <th>Status</th>
+                        <th>Total</th>
+                    </tr>
+                </thead>
+                <tbody id="orders-table-body">
+                    <!-- Orders will load here dynamically -->
+                </tbody>
+            </table>
+        </div>
+    </div>
+
+    <script src="js/app.js"></script>
+    <script>
+        document.addEventListener('DOMContentLoaded', () => {
+            updateCart();
+            loadOrders();
+            checkAuth();
+        });
+
+        function logout() {
+            localStorage.removeItem('authToken');
+            checkAuth();
+            showAlert('Logged out successfully');
+        }
+
+        function showAlert(message) {
+            const alertBox = document.getElementById('alert-box');
+            alertBox.innerText = message;
+            alertBox.style.display = 'block';
+            setTimeout(() => {
+                alertBox.style.display = 'none';
+            }, 3000);
+        }
+    </script>
+</body>
+
+</html>
